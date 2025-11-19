@@ -221,7 +221,7 @@ namespace GLTFast.Tests.Import
                         Assert.Ignore("Requires Draco for Unity package to be installed.");
                         break;
 #endif
-#if !MESHOPT
+#if !MESHOPT_IS_RECENT
                     case Extension.MeshoptCompression:
                         Assert.Ignore("Requires meshoptimizer decompression for Unity package to be installed.");
                         break;

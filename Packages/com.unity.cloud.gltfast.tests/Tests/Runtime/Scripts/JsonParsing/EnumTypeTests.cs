@@ -6,7 +6,7 @@ using System;
 using Newtonsoft.Json;
 #endif
 using GLTFast.Schema;
-#if MESHOPT
+#if MESHOPT_IS_RECENT
 using Meshoptimizer;
 #endif
 using NUnit.Framework;
@@ -91,7 +91,7 @@ namespace GLTFast.Tests.JsonParsing
         [Test]
         public void Meshopt()
         {
-#if MESHOPT
+#if MESHOPT_IS_RECENT
             CheckResultMeshopt(m_Gltf);
 #else
             Assert.Ignore("Requires meshoptimizer decompression for Unity package to be installed.");
@@ -102,7 +102,7 @@ namespace GLTFast.Tests.JsonParsing
         public void MeshoptNewtonsoft()
         {
 #if NEWTONSOFT_JSON
-#if MESHOPT
+#if MESHOPT_IS_RECENT
             CheckResultMeshopt(m_GltfNewtonsoft);
 #else
             Assert.Ignore("Requires meshoptimizer decompression for Unity package to be installed.");
@@ -241,7 +241,7 @@ namespace GLTFast.Tests.JsonParsing
 #endif
         }
 
-#if MESHOPT
+#if MESHOPT_IS_RECENT
         [Test]
         public void BufferViewEnumCasting()
         {
@@ -381,7 +381,7 @@ namespace GLTFast.Tests.JsonParsing
             Assert.AreEqual(Schema.Camera.Type.Orthographic, gltf.Cameras[0].GetCameraType());
         }
 
-#if MESHOPT
+#if MESHOPT_IS_RECENT
         static void CheckResultMeshopt(RootBase gltf)
         {
             Assert.NotNull(gltf);

@@ -17,6 +17,12 @@
 #error You have to update the *Draco for Unity* package in package manager to enable support for decompressing Draco meshes in *glTFast*.
 #endif
 
+#if MESHOPT_IS_RECENT
+#define MESHOPT_IS_ENABLED
+#elif MESHOPT_IS_INSTALLED
+#error You have to update the *meshoptimizer mesh compression for Unity* package in package manager to enable support for decoding meshoptimizer compressed buffer views in *glTFast*.
+#endif
+
 // #define MEASURE_TIMINGS
 
 using System.Collections.Generic;
@@ -33,7 +39,7 @@ using GLTFast.Jobs;
 #if KTX_IS_ENABLED
 using KtxUnity;
 #endif
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
 using Meshoptimizer;
 #endif
 using Unity.Collections.LowLevel.Unsafe;
@@ -155,7 +161,7 @@ namespace GLTFast
 #if KTX_IS_ENABLED
             ExtensionName.TextureBasisUniversal,
 #endif // KTX_IS_ENABLED
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
             ExtensionName.MeshoptCompression,
 #endif
             ExtensionName.MaterialsPbrSpecularGlossiness,
@@ -236,7 +242,7 @@ namespace GLTFast
         /// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#binary-buffer
         GlbBinChunk? m_GlbBinChunk;
 
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
         Dictionary<int, NativeArray<byte>> m_MeshoptBufferViews;
         NativeArray<int> m_MeshoptReturnValues;
         JobHandle m_MeshoptJobHandle;
@@ -1243,7 +1249,7 @@ namespace GLTFast
 
             var success = await WaitForBufferDownloads();
 
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
             if (success) {
                 MeshoptDecode();
             }
@@ -2260,7 +2266,7 @@ namespace GLTFast
         ReadOnlyNativeArray<byte> IGltfBuffers.GetBufferView(int bufferViewIndex, out int byteStride, int offset, int length)
         {
             var bufferView = Root.BufferViews[bufferViewIndex];
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
             if (bufferView.Extensions?.EXT_meshopt_compression != null) {
                 byteStride = bufferView.Extensions.EXT_meshopt_compression.byteStride;
                 var entireBuffer = m_MeshoptBufferViews[bufferViewIndex];
@@ -2287,7 +2293,7 @@ namespace GLTFast
             )
         {
             var bufferView = Root.BufferViews[bufferViewIndex];
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
             if (bufferView.Extensions?.EXT_meshopt_compression != null) {
                 var fullSlice = m_MeshoptBufferViews[bufferViewIndex];
                 if (offset == 0 && (count <= 0 || count * UnsafeUtility.SizeOf(typeof(T)) == fullSlice.Length)) {
@@ -2309,7 +2315,7 @@ namespace GLTFast
         )
         {
             var bufferView = Root.BufferViews[bufferViewIndex];
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
             if (bufferView.Extensions?.EXT_meshopt_compression != null) {
                 unsafe
                 {
@@ -2394,7 +2400,7 @@ namespace GLTFast
             return m_Buffers[bufferIndex].GetSubArray(totalOffset, length);
         }
 
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
         void MeshoptDecode() {
             if(Root.BufferViews!=null) {
                 List<JobHandle> jobHandlesList = null;
@@ -2413,11 +2419,11 @@ namespace GLTFast
                         var origBufferView = GetBufferView(meshopt);
 
                         var jobHandle = Decode.DecodeGltfBuffer(
-                            new NativeSlice<int>(m_MeshoptReturnValues,i,1),
+                            m_MeshoptReturnValues.GetSubArray(i,1),
                             arr,
                             meshopt.count,
                             meshopt.byteStride,
-                            origBufferView.ToSlice(),
+                            origBufferView.AsNativeArrayReadOnly(),
                             meshopt.GetMode(),
                             meshopt.GetFilter()
                         );
@@ -2450,7 +2456,7 @@ namespace GLTFast
             return success;
         }
 
-#endif // MESHOPT
+#endif // MESHOPT_IS_ENABLED
 
         async Task<bool> Prepare()
         {
@@ -2470,11 +2476,11 @@ namespace GLTFast
             }
             await DeferAgent.BreakPoint();
 
-            // RedundantAssignment potentially becomes necessary when MESHOPT is not available
+            // RedundantAssignment potentially becomes necessary when MESHOPT_IS_ENABLED is not defined
             // ReSharper disable once RedundantAssignment
             var success = true;
 
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
             success = await WaitForMeshoptDecode();
             if (!success) return false;
 #endif
@@ -3044,7 +3050,7 @@ namespace GLTFast
             m_GlbBinChunk = null;
             m_MaterialPointsSupport = null;
 
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
             if(m_MeshoptBufferViews!=null) {
                 foreach (var nativeBuffer in m_MeshoptBufferViews.Values) {
                     nativeBuffer.Dispose();
@@ -4202,7 +4208,7 @@ namespace GLTFast
                 return;
             }
             var bufferView = Root.BufferViews[accessor.bufferView];
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
             var meshopt = bufferView.Extensions?.EXT_meshopt_compression;
             if (meshopt != null) {
                 byteStride = meshopt.byteStride;
@@ -4230,7 +4236,7 @@ namespace GLTFast
         public unsafe void GetAccessorSparseIndices(AccessorSparseIndices sparseIndices, out void* data)
         {
             var bufferView = Root.BufferViews[(int)sparseIndices.bufferView];
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
             var meshopt = bufferView.Extensions?.EXT_meshopt_compression;
             if (meshopt != null) {
                 data = (byte*)m_MeshoptBufferViews[(int)sparseIndices.bufferView].GetUnsafeReadOnlyPtr() + sparseIndices.byteOffset;
@@ -4253,7 +4259,7 @@ namespace GLTFast
         public unsafe void GetAccessorSparseValues(AccessorSparseValues sparseValues, out void* data)
         {
             var bufferView = Root.BufferViews[(int)sparseValues.bufferView];
-#if MESHOPT
+#if MESHOPT_IS_ENABLED
             var meshopt = bufferView.Extensions?.EXT_meshopt_compression;
             if (meshopt != null) {
                 data = (byte*)m_MeshoptBufferViews[(int)sparseValues.bufferView].GetUnsafeReadOnlyPtr() + sparseValues.byteOffset;

@@ -105,7 +105,7 @@ namespace GLTFast.Tests.Export
         [UnityTest]
         public IEnumerator MeshoptCompression()
         {
-#if MESHOPT
+#if MESHOPT_IS_RECENT
             yield return AsyncWrapper.WaitForTask(
                 MeshoptCompressionTest()
             );

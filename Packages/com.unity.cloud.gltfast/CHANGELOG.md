@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - (Performance) Import mesh indices as unsigned integers and don't convert to signed integers anymore.
+- [meshoptimizer mesh compression for Unity] minimum required version was raised to 0.2.0-exp.1.
 
 ### Fixed
 
@@ -383,7 +384,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All missing extensions are logged (not just the first one).
   - There's now a single message per missing package.
   - Depending on whether that extension is required the message's type is warning or error.
-  - Added explicit message when [*meshoptimizer decompression for Unity*][meshoptUnity] is missing.
+  - Added explicit message when [meshoptimizer mesh compression for Unity] is missing.
 
 ## [6.3.0] - 2024-03-27
 
@@ -1495,7 +1496,7 @@ This release contains multiple breaking changes. Please read the [upgrade guide]
 [Draco for Unity]: https://docs.unity3d.com/Packages/com.unity.cloud.draco@latest
 [DracoUnity]: https://github.com/atteneder/DracoUnity
 [PolySpatialVisionOS]: https://docs.unity3d.com/Packages/com.unity.polyspatial.visionos@latest/
-[meshoptUnity]: https://docs.unity3d.com/Packages/com.unity.meshopt.decompress@latest/
+[meshoptimizer mesh compression for Unity]: https://docs.unity3d.com/Packages/com.unity.meshopt.decompress@latest/
 [aurorahcx]: https://github.com/aurorahcx
 [Battlehub0x]: https://github.com/Battlehub0x
 [Bersaelor]: https://github.com/Bersaelor
