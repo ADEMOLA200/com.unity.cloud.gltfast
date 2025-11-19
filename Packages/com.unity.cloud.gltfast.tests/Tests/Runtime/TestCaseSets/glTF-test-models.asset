@@ -90,6 +90,11 @@ MonoBehaviour:
     expectInstantiationFail: 0
     expectedLogCodes: 
     requiredExtensions: 
+  - relativeUri: PrimitiveModesNoIndices/PrimitiveModesNoIndices.gltf
+    expectLoadFail: 0
+    expectInstantiationFail: 0
+    expectedLogCodes: 
+    requiredExtensions: 
   - relativeUri: SubMeshSharedAccessor/SubMeshSharedAccessor.gltf
     expectLoadFail: 0
     expectInstantiationFail: 0

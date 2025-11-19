@@ -1296,8 +1296,7 @@ namespace GLTFast.Tests.Jobs
         NativeArray<byte> m_InputUInt8;
         NativeArray<ushort> m_InputUInt16;
         NativeArray<uint> m_InputUInt32;
-        NativeArray<int> m_IndexInt32;
-        NativeArray<int> m_IndexOutput;
+        NativeArray<uint> m_IndexOutput;
 
         [OneTimeSetUp]
         public void SetUpTest()
@@ -1305,15 +1304,13 @@ namespace GLTFast.Tests.Jobs
             m_InputUInt8 = new NativeArray<byte>(k_IndexLength, Allocator.Persistent);
             m_InputUInt16 = new NativeArray<ushort>(k_IndexLength, Allocator.Persistent);
             m_InputUInt32 = new NativeArray<uint>(k_IndexLength, Allocator.Persistent);
-            m_IndexInt32 = new NativeArray<int>(k_IndexLength, Allocator.Persistent);
-            m_IndexOutput = new NativeArray<int>(k_IndexLength, Allocator.Persistent);
+            m_IndexOutput = new NativeArray<uint>(k_IndexLength, Allocator.Persistent);
 
             for (var i = 0; i < k_IndexLength; i++)
             {
                 m_InputUInt8[i] = (byte)i;
                 m_InputUInt16[i] = (ushort)i;
                 m_InputUInt32[i] = (uint)i;
-                m_IndexInt32[i] = i;
             }
         }
 
@@ -1324,7 +1321,6 @@ namespace GLTFast.Tests.Jobs
             m_InputUInt16.Dispose();
             m_InputUInt32.Dispose();
             m_IndexOutput.Dispose();
-            m_IndexInt32.Dispose();
         }
 
         void CheckResult()
@@ -1375,7 +1371,7 @@ namespace GLTFast.Tests.Jobs
         public void CreateIndicesInt32Job()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
-            var job = new GLTFast.Jobs.CreateIndicesInt32Job
+            var job = new GLTFast.Jobs.CreateIndicesUInt32Job
             {
                 result = m_IndexOutput
             };
@@ -1387,7 +1383,7 @@ namespace GLTFast.Tests.Jobs
         public void CreateIndicesInt32FlippedJob()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
-            var job = new GLTFast.Jobs.CreateIndicesInt32FlippedJob
+            var job = new GLTFast.Jobs.CreateIndicesUInt32FlippedJob
             {
                 result = m_IndexOutput
             };
@@ -1428,7 +1424,7 @@ namespace GLTFast.Tests.Jobs
         public void ConvertIndicesUInt8ToInt32Job()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
-            var job = new GLTFast.Jobs.ConvertIndicesUInt8ToInt32Job
+            var job = new GLTFast.Jobs.ConvertIndicesUInt8ToUInt32Job
             {
                 input = m_InputUInt8.AsReadOnly(),
                 result = m_IndexOutput
@@ -1467,22 +1463,9 @@ namespace GLTFast.Tests.Jobs
         public void ConvertIndicesUInt16ToInt32Job()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
-            var job = new GLTFast.Jobs.ConvertIndicesUInt16ToInt32Job
+            var job = new GLTFast.Jobs.ConvertIndicesUInt16ToUInt32Job
             {
                 input = m_InputUInt16.AsReadOnly(),
-                result = m_IndexOutput
-            };
-            job.Run(m_IndexOutput.Length);
-            CheckResult();
-        }
-
-        [Test]
-        public void ConvertIndicesUInt32ToInt32Job()
-        {
-            Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
-            var job = new GLTFast.Jobs.ConvertIndicesUInt32ToInt32Job
-            {
-                input = m_InputUInt32.AsReadOnly(),
                 result = m_IndexOutput
             };
             job.Run(m_IndexOutput.Length);
@@ -1508,7 +1491,7 @@ namespace GLTFast.Tests.Jobs
             Assert.IsTrue(m_IndexOutput.Length > 3);
             var job = new GLTFast.Jobs.RecalculateIndicesForTriangleFanJob
             {
-                input = m_IndexInt32,
+                input = m_InputUInt32,
                 result = m_IndexOutput
             };
             var triangleCount = m_IndexOutput.Length / 3;
@@ -1522,7 +1505,7 @@ namespace GLTFast.Tests.Jobs
             Assert.IsTrue(m_IndexOutput.Length > 3);
             var job = new GLTFast.Jobs.RecalculateIndicesForTriangleStripJob
             {
-                input = m_IndexInt32,
+                input = m_InputUInt32,
                 result = m_IndexOutput
             };
             var triangleCount = m_IndexOutput.Length / 3;
