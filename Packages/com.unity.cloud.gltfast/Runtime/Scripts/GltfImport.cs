@@ -627,11 +627,11 @@ namespace GLTFast
             CancellationToken cancellationToken = default
         )
         {
-            var managedNativeArray = new ManagedNativeArray<byte, byte>(bytes);
+            var managedNativeArray = new ReadOnlyNativeArrayFromManagedArray<byte>(bytes);
             m_VolatileDisposables ??= new List<IDisposable>();
             m_VolatileDisposables.Add(managedNativeArray);
             return await LoadGltfBinaryInternal(
-                managedNativeArray.nativeArray.AsReadOnly(),
+                managedNativeArray.Array.AsNativeArrayReadOnly(),
                 uri,
                 importSettings,
                 cancellationToken
