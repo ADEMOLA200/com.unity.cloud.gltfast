@@ -64,6 +64,14 @@ namespace GLTFast.Editor.Tests
         [Test]
         public void PackageSetupCheckTest()
         {
+            LogAssert.Expect(
+                LogType.Warning,
+                "Deprecated package <i>Old Example</i> (<i>com.old-example.pkg</i>) detected!\n" +
+                "<i>glTFast</i> now requires <i>Example</i> (<i>com.example.pkg</i>) instead to provide support for " +
+                "<a href=\"https://some.feature\">Feature</a>.\nYou can <a command=\"replace\" " +
+                "arg=\"com.old-example.pkg\">automatically replace</a> the deprecated package or do it manually " +
+                "following the <a href=\"https://some.feature/documentation/\">documentation</a>.");
+
             var replacement = new PackageReplacement
             {
                 name = "Example",
@@ -76,14 +84,6 @@ namespace GLTFast.Editor.Tests
             };
 
             replacement.LogUpgradeMessage();
-
-            LogAssert.Expect(
-                LogType.Warning,
-                "Deprecated package <i>Old Example</i> (<i>com.old-example.pkg</i>) detected!\n" +
-                "<i>glTFast</i> now requires <i>Example</i> (<i>com.example.pkg</i>) instead to provide support for " +
-                "<a href=\"https://some.feature\">Feature</a>.\nYou can <a command=\"replace\" " +
-                "arg=\"com.old-example.pkg\">automatically replace</a> the deprecated package or do it manually " +
-                "following the <a href=\"https://some.feature/documentation/\">documentation</a>.");
         }
     }
 }

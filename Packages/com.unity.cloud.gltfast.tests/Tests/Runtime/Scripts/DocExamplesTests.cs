@@ -40,10 +40,10 @@ namespace GLTFast.DocExamples.Tests
         [UnityTest]
         public IEnumerator ImportSettingsFail()
         {
+            LogAssert.Expect(LogType.Error, "Loading glTF failed!");
             var task = LoadGltfFromMemory.ImportSettings(
                 Path.Combine(Application.temporaryCachePath, "NonExistingFile.gltf"));
             yield return AsyncWrapper.WaitForTask(task);
-            LogAssert.Expect(LogType.Error, "Loading glTF failed!");
         }
 
         [UnityTest]
@@ -61,6 +61,7 @@ namespace GLTFast.DocExamples.Tests
         [UnityTest]
         public IEnumerator InstantiationFail()
         {
+            LogAssert.Expect(LogType.Error, "Loading glTF failed!");
             var component = new GameObject()
                 .AddComponent<LoadGltfFromMemory>();
             component.filePath = Path.Combine(Application.temporaryCachePath, "NonExistingFile.gltf");
@@ -68,7 +69,6 @@ namespace GLTFast.DocExamples.Tests
             var task = component.Instantiation();
             yield return AsyncWrapper.WaitForTask(task);
             Object.Destroy(component.gameObject);
-            LogAssert.Expect(LogType.Error, "Loading glTF failed!");
         }
 
 #if UNITY_ANIMATION

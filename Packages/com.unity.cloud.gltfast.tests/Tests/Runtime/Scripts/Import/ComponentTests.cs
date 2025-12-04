@@ -41,15 +41,14 @@ namespace GLTFast.Tests.Import
         [GltfTestCase("glTF-test-models", 1, k_TestAsset)]
         public IEnumerator GltfBoundsAsset(GltfTestCaseSet testCaseSet, GltfTestCase testCase)
         {
+#if !UNITY_PHYSICS
+            LogAssert.Expect(LogType.Error, "GltfBoundsAsset requires the built-in Physics package to be enabled (in the Package Manager)");
+#endif
             var task = LoadGltfViaComponent<GltfBoundsAsset>(
                 Path.Combine(testCaseSet.RootPath, testCase.relativeUri),
                 asset => asset.LoadOnStartup = false
                 );
             yield return Utils.WaitForTask(task);
-
-#if !UNITY_PHYSICS
-            LogAssert.Expect(LogType.Error, "GltfBoundsAsset requires the built-in Physics package to be enabled (in the Package Manager)");
-#endif
         }
 
         [GltfTestCase("glTF-test-models", 1, k_TestAsset)]

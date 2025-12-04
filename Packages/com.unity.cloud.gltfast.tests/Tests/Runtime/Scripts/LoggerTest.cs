@@ -53,14 +53,20 @@ namespace GLTFast.Tests
         [Test]
         public static void ConsoleLoggerTest()
         {
+            LogAssert.Expect(LogType.Error, "Download URL https://something.com/nowherfound.glb failed: 404");
             var r = new ConsoleLogger();
             r.Error(LogCode.Download, "404", "https://something.com/nowherfound.glb");
-            LogAssert.Expect(LogType.Error, "Download URL https://something.com/nowherfound.glb failed: 404");
         }
 
         [Test]
         public static void ConsoleLoggerLogTest()
         {
+            LogAssert.Expect(LogType.Error, "Download URL https://something.com/nowherfound.glb failed: 401");
+            LogAssert.Expect(LogType.Assert, "Download URL https://something.com/nowherfound.glb failed: 402");
+            LogAssert.Expect(LogType.Warning, "Download URL https://something.com/nowherfound.glb failed: 403");
+            LogAssert.Expect(LogType.Log, "Download URL https://something.com/nowherfound.glb failed: 404");
+            LogAssert.Expect(LogType.Exception, "Download URL https://something.com/nowherfound.glb failed: 405");
+
             var r = new ConsoleLogger();
             ICodeLogger l = r;
             l.Log(LogType.Error, LogCode.Download, "401", "https://something.com/nowherfound.glb");
@@ -68,12 +74,6 @@ namespace GLTFast.Tests
             l.Log(LogType.Warning, LogCode.Download, "403", "https://something.com/nowherfound.glb");
             l.Log(LogType.Log, LogCode.Download, "404", "https://something.com/nowherfound.glb");
             l.Log(LogType.Exception, LogCode.Download, "405", "https://something.com/nowherfound.glb");
-
-            LogAssert.Expect(LogType.Error, "Download URL https://something.com/nowherfound.glb failed: 401");
-            LogAssert.Expect(LogType.Assert, "Download URL https://something.com/nowherfound.glb failed: 402");
-            LogAssert.Expect(LogType.Warning, "Download URL https://something.com/nowherfound.glb failed: 403");
-            LogAssert.Expect(LogType.Log, "Download URL https://something.com/nowherfound.glb failed: 404");
-            LogAssert.Expect(LogType.Exception, "Download URL https://something.com/nowherfound.glb failed: 405");
         }
 
         [Test]
