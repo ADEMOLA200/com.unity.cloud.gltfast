@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+### Security
+
+## [6.15.1] - 2025-12-09
+
+### Added
 - Assigned glTF logo to [GltfEntityAsset](xref:GLTFast.GltfEntityAsset) component.
 - (Test) Test glTF asset *CylinderWithMaterial* that's procedurally generated at runtime.
 - (Test) Tests for documentation examples.
@@ -39,12 +53,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (Test) Stabilize tests by executing `LogAssert.Expect` before actual tests.
 - (Entities) Sub-meshes are rendered properly.
 - (Test) Tests destroy the glTF entities before disposing meshes/materials to avoid batch rendering errors.
-
-### Removed
-
-### Deprecated
-
-### Security
 
 ## [6.15.0] - 2025-11-17
 

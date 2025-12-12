@@ -60,9 +60,7 @@
                 "MemberAdded ( -> TAnimation[] GLTFast.Schema.RootBase`15::animations)",
                 "MemberAdded ( -> System.Collections.Generic.IReadOnlyList`1<GLTFast.Schema.AnimationBase> GLTFast.Schema.RootBase::Animations())",
                 "MemberAdded ( -> System.Boolean GLTFast.Schema.RootBase::HasAnimation())",
-                "MemberAdded ( -> GLTFast.Logging.LogCode GLTFast.Logging.LogCode::TextureSamplerNotApplied)",
-                "MemberAdded ( -> GLTFast.Logging.LogCode GLTFast.Logging.LogCode::BufferDataUriUnexpectedMimeType)",
-                "MemberAdded ( -> GLTFast.Logging.LogCode GLTFast.Logging.LogCode::BufferContentUndersized)",
+                "MemberAdded ( -> GLTFast.Logging.LogCode GLTFast.Logging.LogCode::UnexpectedEndOfContent)",
                 "TypeAddedChange ( -> GLTFast.Schema.AnimationChannel)",
                 "TypeAddedChange ( -> GLTFast.Schema.AnimationChannelBase`1)",
                 "TypeAddedChange ( -> GLTFast.Schema.AnimationChannelBase)",
@@ -81,6 +79,6 @@
         }
     ],
     "breakingChanges": 2,
-    "additions": 62,
+    "additions": 60,
     "removedAssemblyCount": 0
 }
