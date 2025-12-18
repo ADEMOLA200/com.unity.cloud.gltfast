@@ -10,6 +10,10 @@ For any material there are always two colors that are multiplied:
 - BaseColorFactor * Vertex Colors
 - Vertex Colors * BaseColorTexture
 
+And one for checking emission:
+
+- EmissiveFactor * EmissiveTexture
+
 The colors are crafted in a way that they are not gray (have a color), but when multiplied correctly in linear space result in a perfect mid-grey.
 
 There are variants for PBR Metallic/Roughness and Unlit shaders.
