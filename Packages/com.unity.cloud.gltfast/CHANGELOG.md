@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - [GltfImport.InstantiateSceneAsync](xref:GLTFast.GltfImportBase.InstantiateSceneAsync*) properly handles an invalid scene index parameter.
 - [GltfImport](xref:GLTFast.GltfImportBase) waits for downloads to complete before attempting disposal during cancellation.
+- Projects depending on an outdated version of [meshoptimizer mesh compression for Unity] may suppress the corresponding compiler error by using the `GLTFAST_IGNORE_MESHOPT_OUTDATED_ERROR` scripting define symbol.
 
 ### Removed
 

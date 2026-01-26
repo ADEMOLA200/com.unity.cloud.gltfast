@@ -20,8 +20,8 @@
 
 #if MESHOPT_IS_RECENT
 #define MESHOPT_IS_ENABLED
-#elif MESHOPT_IS_INSTALLED
-#error You have to update the *meshoptimizer mesh compression for Unity* package in package manager to enable support for decoding meshoptimizer compressed buffer views in *glTFast*.
+#elif MESHOPT_IS_INSTALLED && !GLTFAST_IGNORE_MESHOPT_OUTDATED_ERROR
+#error You have to update the <a href="https://docs.unity3d.com/Packages/com.unity.meshopt.decompress@latest/">meshoptimizer mesh compression for Unity package</a> in package manager to enable support for decoding meshoptimizer compressed buffer views in glTFast. Add "GLTFAST_IGNORE_MESHOPT_OUTDATED_ERROR" to your project's scripting define symbols to temporarily suppress this error.
 #endif
 
 // #define MEASURE_TIMINGS
