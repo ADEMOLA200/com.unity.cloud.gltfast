@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (Shader) Incorrect alpha blending/clipping due to invalid color space conversion on the base color map alpha and vertex color alpha values (affected shader graphs only; fixes [#800](https://github.com/atteneder/glTFast/issues/800)).
 - (Shader) Built-in render pipeline shaders metallic-roughness and specular-glossiness now factor in vertex color alpha values.
 - (Shader) All built-in render pipeline shaders apply vertex color alpha values linearly.
+- (Shader) Shader graph *glTF-pbrSpecularGlossiness* does not disregard the *Glossiness* parameter anymore.
+- (Import) Cases when specular-glossiness material setup would be incomplete at runtime.
 - (Import) Removed remains of incorrectly signed integer indices.
 - (Export) Smoothness value property is exported correctly across more combination of settings for Universal Render Pipeline Lit shader based materials (fixes [#795](https://github.com/atteneder/glTFast/issues/795) and [796](https://github.com/atteneder/glTFast/issues/796)).
 - (Export) When a Lit/Standard material has a smoothness texture, their smoothness value is baked into the resulting roughness channel (of the ORM map). This preserves the visual appearance, but is a lossy operation if the smoothness value is not `1.0` (fixes [#795](https://github.com/atteneder/glTFast/issues/795) and [796](https://github.com/atteneder/glTFast/issues/796)).
