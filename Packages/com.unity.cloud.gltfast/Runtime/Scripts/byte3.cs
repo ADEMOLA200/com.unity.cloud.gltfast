@@ -57,11 +57,22 @@ namespace GLTFast
 
         /// <summary>
         /// Converts triangle indices from unsigned byte in glTF space to
+        /// unsigned short indices in Unity space.
+        /// </summary>
+        /// <returns>Triangle indices vector in Unity space.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ushort3 GltfToUnityTriangleIndicesUInt16()
+        {
+            return new ushort3(x, z, y);
+        }
+
+        /// <summary>
+        /// Converts triangle indices from unsigned byte in glTF space to
         /// unsigned int indices in Unity space.
         /// </summary>
         /// <returns>Triangle indices vector in Unity space.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public uint3 GltfToUnityTriangleIndies()
+        public uint3 GltfToUnityTriangleIndices()
         {
             return new uint3(x, z, y);
         }

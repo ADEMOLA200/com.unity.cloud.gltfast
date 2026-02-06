@@ -296,6 +296,18 @@ namespace GLTFast.Jobs
     }
 
     [BurstCompile]
+    struct CreateIndicesUInt16Job : IJobParallelFor
+    {
+        [WriteOnly]
+        public NativeArray<ushort> result;
+
+        public void Execute(int index)
+        {
+            result[index] = (ushort)index;
+        }
+    }
+
+    [BurstCompile]
     struct CreateIndicesUInt32Job : IJobParallelFor
     {
         [WriteOnly]
@@ -304,6 +316,18 @@ namespace GLTFast.Jobs
         public void Execute(int index)
         {
             result[index] = (uint)index;
+        }
+    }
+
+    [BurstCompile]
+    struct CreateIndicesUInt16FlippedJob : IJobParallelFor
+    {
+        [WriteOnly]
+        public NativeArray<ushort> result;
+
+        public void Execute(int index)
+        {
+            result[index] = (ushort)(index - 2 * (index % 3 - 1));
         }
     }
 
@@ -320,7 +344,32 @@ namespace GLTFast.Jobs
     }
 
     [BurstCompile]
-    struct CreateIndicesForTriangleStripJob : IJobParallelFor
+    struct CreateIndicesForTriangleStripUInt16Job : IJobParallelFor
+    {
+        [WriteOnly]
+        public NativeArray<ushort> result;
+
+        public void Execute(int index)
+        {
+            // Source https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html
+            // Triangle Strips
+            // One triangle primitive is defined by each vertex and the two vertices that follow it, according to the equation:
+            // pi = { vi, vi + (1 + i % 2), vi + (2 - i % 2)}
+            // We swap the second and third indices for Unity
+
+            var triangleIndex = index / 3;
+            result[index] = (index % 3) switch
+            {
+                0 => (ushort)(triangleIndex),
+                1 => (ushort)(triangleIndex + (2 - triangleIndex % 2)),
+                2 => (ushort)(triangleIndex + (1 + triangleIndex % 2)),
+                _ => result[index]
+            };
+        }
+    }
+
+    [BurstCompile]
+    struct CreateIndicesForTriangleStripUInt32Job : IJobParallelFor
     {
         [WriteOnly]
         public NativeArray<uint> result;
@@ -345,7 +394,31 @@ namespace GLTFast.Jobs
     }
 
     [BurstCompile]
-    struct CreateIndicesForTriangleFanJob : IJobParallelFor
+    struct CreateIndicesForTriangleFanUInt16Job : IJobParallelFor
+    {
+        [WriteOnly]
+        public NativeArray<ushort> result;
+
+        public void Execute(int index)
+        {
+            // Source https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html
+            // Triangle Fans
+            // Triangle primitives are defined around a shared common vertex, according to the equation:
+            // pi = {vi+1, vi+2, v0}
+            // We change first and second indices for Unity
+
+            var triangleIndex = index / 3;
+            result[index] = (index % 3) switch
+            {
+                0 => (ushort)(triangleIndex + 2),
+                1 => (ushort)(triangleIndex + 1),
+                _ => 0
+            };
+        }
+    }
+
+    [BurstCompile]
+    struct CreateIndicesForTriangleFanUInt32Job : IJobParallelFor
     {
         [WriteOnly]
         public NativeArray<uint> result;
@@ -408,6 +481,21 @@ namespace GLTFast.Jobs
     }
 
     [BurstCompile]
+    struct ConvertIndicesUInt8ToUInt16Job : IJobParallelFor
+    {
+        [ReadOnly]
+        public NativeArray<byte>.ReadOnly input;
+
+        [WriteOnly]
+        public NativeArray<ushort> result;
+
+        public void Execute(int index)
+        {
+            result[index] = input[index];
+        }
+    }
+
+    [BurstCompile]
     struct ConvertIndicesUInt8ToUInt32Job : IJobParallelFor
     {
         [ReadOnly]
@@ -423,6 +511,21 @@ namespace GLTFast.Jobs
     }
 
     [BurstCompile]
+    struct ConvertIndicesUInt8ToUInt16FlippedJob : IJobParallelFor
+    {
+        [ReadOnly]
+        public NativeArray<byte3>.ReadOnly input;
+
+        [WriteOnly]
+        public NativeArray<ushort3> result;
+
+        public void Execute(int index)
+        {
+            result[index] = input[index].GltfToUnityTriangleIndicesUInt16();
+        }
+    }
+
+    [BurstCompile]
     struct ConvertIndicesUInt8ToUInt32FlippedJob : IJobParallelFor
     {
         [ReadOnly]
@@ -433,7 +536,22 @@ namespace GLTFast.Jobs
 
         public void Execute(int index)
         {
-            result[index] = input[index].GltfToUnityTriangleIndies();
+            result[index] = input[index].GltfToUnityTriangleIndices();
+        }
+    }
+
+    [BurstCompile]
+    struct ConvertIndicesUInt16ToUInt16FlippedJob : IJobParallelFor
+    {
+        [ReadOnly]
+        public NativeArray<ushort3>.ReadOnly input;
+
+        [WriteOnly]
+        public NativeArray<ushort3> result;
+
+        public void Execute(int index)
+        {
+            result[index] = input[index].GltfToUnityTriangleIndicesUInt16();
         }
     }
 
@@ -448,7 +566,7 @@ namespace GLTFast.Jobs
 
         public void Execute(int index)
         {
-            result[index] = input[index].GltfToUnityTriangleIndies();
+            result[index] = input[index].GltfToUnityTriangleIndices();
         }
     }
 

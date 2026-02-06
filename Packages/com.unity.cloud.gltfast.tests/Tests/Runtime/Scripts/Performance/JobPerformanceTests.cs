@@ -1216,6 +1216,7 @@ namespace GLTFast.Tests.Performance.Jobs
         NativeArray<byte> m_InputUInt8;
         NativeArray<ushort> m_InputUInt16;
         NativeArray<uint> m_InputUInt32;
+        NativeArray<ushort> m_IndexOutputUInt16;
         NativeArray<uint> m_IndexOutput;
 
         [OneTimeSetUp]
@@ -1224,6 +1225,7 @@ namespace GLTFast.Tests.Performance.Jobs
             m_InputUInt8 = new NativeArray<byte>(k_IndexLength, Allocator.Persistent);
             m_InputUInt16 = new NativeArray<ushort>(k_IndexLength, Allocator.Persistent);
             m_InputUInt32 = new NativeArray<uint>(k_IndexLength, Allocator.Persistent);
+            m_IndexOutputUInt16 = new NativeArray<ushort>(k_IndexLength, Allocator.Persistent);
             m_IndexOutput = new NativeArray<uint>(k_IndexLength, Allocator.Persistent);
 
             for (int i = 0; i < 6; i++)
@@ -1240,11 +1242,29 @@ namespace GLTFast.Tests.Performance.Jobs
             m_InputUInt8.Dispose();
             m_InputUInt16.Dispose();
             m_InputUInt32.Dispose();
+            m_IndexOutputUInt16.Dispose();
             m_IndexOutput.Dispose();
         }
 
         [Test, Performance]
-        public void CreateIndicesInt32Job()
+        public void CreateIndicesUInt16Job()
+        {
+#if !RUN_PERFORMANCE_TESTS
+            Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
+#endif
+            Assert.IsTrue(m_IndexOutputUInt16.Length % 3 == 0);
+            var job = new GLTFast.Jobs.CreateIndicesUInt16Job
+            {
+                result = m_IndexOutputUInt16
+            };
+            Measure.Method(() => job.Run(m_IndexOutputUInt16.Length))
+                .WarmupCount(1)
+                .DynamicMeasurementCount()
+                .Run();
+        }
+
+        [Test, Performance]
+        public void CreateIndicesUInt32Job()
         {
 #if !RUN_PERFORMANCE_TESTS
             Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
@@ -1260,8 +1280,26 @@ namespace GLTFast.Tests.Performance.Jobs
                 .Run();
         }
 
+
         [Test, Performance]
-        public void CreateIndicesInt32FlippedJob()
+        public void CreateIndicesUInt16FlippedJob()
+        {
+#if !RUN_PERFORMANCE_TESTS
+            Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
+#endif
+            Assert.IsTrue(m_IndexOutputUInt16.Length % 3 == 0);
+            var job = new GLTFast.Jobs.CreateIndicesUInt16FlippedJob
+            {
+                result = m_IndexOutputUInt16
+            };
+            Measure.Method(() => job.Run(m_IndexOutputUInt16.Length))
+                .WarmupCount(1)
+                .DynamicMeasurementCount()
+                .Run();
+        }
+
+        [Test, Performance]
+        public void CreateIndicesUInt32FlippedJob()
         {
 #if !RUN_PERFORMANCE_TESTS
             Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
@@ -1285,13 +1323,30 @@ namespace GLTFast.Tests.Performance.Jobs
         }
 
         [Test, Performance]
-        public void CreateIndicesForTriangleStripJob()
+        public void CreateIndicesForTriangleStripUInt16Job()
+        {
+#if !RUN_PERFORMANCE_TESTS
+            Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
+#endif
+            Assert.IsTrue(m_IndexOutputUInt16.Length > 3);
+            var job = new GLTFast.Jobs.CreateIndicesForTriangleStripUInt16Job
+            {
+                result = m_IndexOutputUInt16
+            };
+            Measure.Method(() => job.Run(m_IndexOutputUInt16.Length))
+                .WarmupCount(1)
+                .DynamicMeasurementCount()
+                .Run();
+        }
+
+        [Test, Performance]
+        public void CreateIndicesForTriangleStripUInt32Job()
         {
 #if !RUN_PERFORMANCE_TESTS
             Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
 #endif
             Assert.IsTrue(m_IndexOutput.Length > 3);
-            var job = new GLTFast.Jobs.CreateIndicesForTriangleStripJob
+            var job = new GLTFast.Jobs.CreateIndicesForTriangleStripUInt32Job
             {
                 result = m_IndexOutput
             };
@@ -1302,13 +1357,30 @@ namespace GLTFast.Tests.Performance.Jobs
         }
 
         [Test, Performance]
-        public void CreateIndicesForTriangleFanJob()
+        public void CreateIndicesForTriangleFanUInt16Job()
+        {
+#if !RUN_PERFORMANCE_TESTS
+            Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
+#endif
+            Assert.IsTrue(m_IndexOutputUInt16.Length > 3);
+            var job = new GLTFast.Jobs.CreateIndicesForTriangleFanUInt16Job
+            {
+                result = m_IndexOutputUInt16
+            };
+            Measure.Method(() => job.Run(m_IndexOutputUInt16.Length))
+                .WarmupCount(1)
+                .DynamicMeasurementCount()
+                .Run();
+        }
+
+        [Test, Performance]
+        public void CreateIndicesForTriangleFanUInt32Job()
         {
 #if !RUN_PERFORMANCE_TESTS
             Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
 #endif
             Assert.IsTrue(m_IndexOutput.Length > 3);
-            var job = new GLTFast.Jobs.CreateIndicesForTriangleFanJob
+            var job = new GLTFast.Jobs.CreateIndicesForTriangleFanUInt32Job
             {
                 result = m_IndexOutput
             };
@@ -1328,7 +1400,25 @@ namespace GLTFast.Tests.Performance.Jobs
         }
 
         [Test, Performance]
-        public void ConvertIndicesUInt8ToInt32Job()
+        public void ConvertIndicesUInt8ToUInt16Job()
+        {
+#if !RUN_PERFORMANCE_TESTS
+            Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
+#endif
+            Assert.IsTrue(m_IndexOutputUInt16.Length % 3 == 0);
+            var job = new GLTFast.Jobs.ConvertIndicesUInt8ToUInt16Job
+            {
+                input = m_InputUInt8.AsReadOnly(),
+                result = m_IndexOutputUInt16
+            };
+            Measure.Method(() => job.Run(m_IndexOutputUInt16.Length))
+                .WarmupCount(1)
+                .DynamicMeasurementCount()
+                .Run();
+        }
+
+        [Test, Performance]
+        public void ConvertIndicesUInt8ToUInt32Job()
         {
 #if !RUN_PERFORMANCE_TESTS
             Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
@@ -1346,7 +1436,25 @@ namespace GLTFast.Tests.Performance.Jobs
         }
 
         [Test, Performance]
-        public void ConvertIndicesUInt8ToInt32FlippedJob()
+        public void ConvertIndicesUInt8ToUInt16FlippedJob()
+        {
+#if !RUN_PERFORMANCE_TESTS
+            Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
+#endif
+            Assert.IsTrue(m_IndexOutputUInt16.Length % 3 == 0);
+            var job = new GLTFast.Jobs.ConvertIndicesUInt8ToUInt16FlippedJob
+            {
+                input = m_InputUInt8.Reinterpret<byte3>(UnsafeUtility.SizeOf<byte>()).AsReadOnly(),
+                result = m_IndexOutputUInt16.Reinterpret<ushort3>(sizeof(ushort))
+            };
+            Measure.Method(() => job.Run(m_IndexOutputUInt16.Length / 3))
+                .WarmupCount(1)
+                .DynamicMeasurementCount()
+                .Run();
+        }
+
+        [Test, Performance]
+        public void ConvertIndicesUInt8ToUInt32FlippedJob()
         {
 #if !RUN_PERFORMANCE_TESTS
             Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
@@ -1364,7 +1472,25 @@ namespace GLTFast.Tests.Performance.Jobs
         }
 
         [Test, Performance]
-        public void ConvertIndicesUInt16ToInt32FlippedJob()
+        public void ConvertIndicesUInt16ToUInt16FlippedJob()
+        {
+#if !RUN_PERFORMANCE_TESTS
+            Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
+#endif
+            Assert.IsTrue(m_IndexOutputUInt16.Length % 3 == 0);
+            var job = new GLTFast.Jobs.ConvertIndicesUInt16ToUInt16FlippedJob
+            {
+                input = m_InputUInt16.Reinterpret<ushort3>(UnsafeUtility.SizeOf<ushort>()).AsReadOnly(),
+                result = m_IndexOutputUInt16.Reinterpret<ushort3>(sizeof(ushort))
+            };
+            Measure.Method(() => job.Run(m_IndexOutputUInt16.Length / 3))
+                .WarmupCount(1)
+                .DynamicMeasurementCount()
+                .Run();
+        }
+
+        [Test, Performance]
+        public void ConvertIndicesUInt16ToUInt32FlippedJob()
         {
 #if !RUN_PERFORMANCE_TESTS
             Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
@@ -1382,7 +1508,7 @@ namespace GLTFast.Tests.Performance.Jobs
         }
 
         [Test, Performance]
-        public void ConvertIndicesUInt16ToInt32Job()
+        public void ConvertIndicesUInt16ToUInt32Job()
         {
 #if !RUN_PERFORMANCE_TESTS
             Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");
@@ -1400,7 +1526,7 @@ namespace GLTFast.Tests.Performance.Jobs
         }
 
         [Test, Performance]
-        public void ConvertIndicesUInt32ToInt32FlippedJob()
+        public void ConvertIndicesUInt32ToUInt32FlippedJob()
         {
 #if !RUN_PERFORMANCE_TESTS
             Assert.Ignore("Skipping performance tests (scripting define RUN_PERFORMANCE_TESTS is not set).");

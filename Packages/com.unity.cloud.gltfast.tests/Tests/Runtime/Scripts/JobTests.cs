@@ -1296,6 +1296,7 @@ namespace GLTFast.Tests.Jobs
         NativeArray<byte> m_InputUInt8;
         NativeArray<ushort> m_InputUInt16;
         NativeArray<uint> m_InputUInt32;
+        NativeArray<ushort> m_IndexOutputUInt16;
         NativeArray<uint> m_IndexOutput;
 
         [OneTimeSetUp]
@@ -1304,6 +1305,7 @@ namespace GLTFast.Tests.Jobs
             m_InputUInt8 = new NativeArray<byte>(k_IndexLength, Allocator.Persistent);
             m_InputUInt16 = new NativeArray<ushort>(k_IndexLength, Allocator.Persistent);
             m_InputUInt32 = new NativeArray<uint>(k_IndexLength, Allocator.Persistent);
+            m_IndexOutputUInt16 = new NativeArray<ushort>(k_IndexLength, Allocator.Persistent);
             m_IndexOutput = new NativeArray<uint>(k_IndexLength, Allocator.Persistent);
 
             for (var i = 0; i < k_IndexLength; i++)
@@ -1320,55 +1322,112 @@ namespace GLTFast.Tests.Jobs
             m_InputUInt8.Dispose();
             m_InputUInt16.Dispose();
             m_InputUInt32.Dispose();
+            m_IndexOutputUInt16.Dispose();
             m_IndexOutput.Dispose();
         }
 
-        void CheckResult()
+        static void CheckResult(NativeArray<ushort> result)
         {
-            for (var i = 0; i < 6; i++)
+            for (var i = (ushort)0; i < 6; i++)
             {
-                Assert.AreEqual(i, m_IndexOutput[i]);
+                Assert.AreEqual(i, result[i]);
             }
         }
 
-        void CheckResultFlipped()
+        static void CheckResult(NativeArray<uint> result)
         {
-            Assert.AreEqual(0, m_IndexOutput[0]);
-            Assert.AreEqual(2, m_IndexOutput[1]);
-            Assert.AreEqual(1, m_IndexOutput[2]);
-            Assert.AreEqual(3, m_IndexOutput[3]);
-            Assert.AreEqual(5, m_IndexOutput[4]);
-            Assert.AreEqual(4, m_IndexOutput[5]);
+            for (var i = 0; i < 6; i++)
+            {
+                Assert.AreEqual(i, result[i]);
+            }
         }
 
-        void CheckResultTriangleFan()
+        static void CheckResultFlipped(NativeArray<ushort> result)
         {
-            Assert.AreEqual(2, m_IndexOutput[0]);
-            Assert.AreEqual(1, m_IndexOutput[1]);
-            Assert.AreEqual(0, m_IndexOutput[2]);
-            Assert.AreEqual(3, m_IndexOutput[3]);
-            Assert.AreEqual(2, m_IndexOutput[4]);
-            Assert.AreEqual(0, m_IndexOutput[5]);
-            Assert.AreEqual(4, m_IndexOutput[6]);
-            Assert.AreEqual(3, m_IndexOutput[7]);
-            Assert.AreEqual(0, m_IndexOutput[8]);
+            Assert.AreEqual(0, result[0]);
+            Assert.AreEqual(2, result[1]);
+            Assert.AreEqual(1, result[2]);
+            Assert.AreEqual(3, result[3]);
+            Assert.AreEqual(5, result[4]);
+            Assert.AreEqual(4, result[5]);
         }
 
-        void CheckResultTriangleStrip()
+        static void CheckResultFlipped(NativeArray<uint> result)
         {
-            Assert.AreEqual(0, m_IndexOutput[0]);
-            Assert.AreEqual(2, m_IndexOutput[1]);
-            Assert.AreEqual(1, m_IndexOutput[2]);
-            Assert.AreEqual(1, m_IndexOutput[3]);
-            Assert.AreEqual(2, m_IndexOutput[4]);
-            Assert.AreEqual(3, m_IndexOutput[5]);
-            Assert.AreEqual(2, m_IndexOutput[6]);
-            Assert.AreEqual(4, m_IndexOutput[7]);
-            Assert.AreEqual(3, m_IndexOutput[8]);
+            Assert.AreEqual(0, result[0]);
+            Assert.AreEqual(2, result[1]);
+            Assert.AreEqual(1, result[2]);
+            Assert.AreEqual(3, result[3]);
+            Assert.AreEqual(5, result[4]);
+            Assert.AreEqual(4, result[5]);
+        }
+
+        static void CheckResultTriangleFan(NativeArray<ushort> result)
+        {
+            Assert.AreEqual(2, result[0]);
+            Assert.AreEqual(1, result[1]);
+            Assert.AreEqual(0, result[2]);
+            Assert.AreEqual(3, result[3]);
+            Assert.AreEqual(2, result[4]);
+            Assert.AreEqual(0, result[5]);
+            Assert.AreEqual(4, result[6]);
+            Assert.AreEqual(3, result[7]);
+            Assert.AreEqual(0, result[8]);
+        }
+
+        static void CheckResultTriangleFan(NativeArray<uint> result)
+        {
+            Assert.AreEqual(2, result[0]);
+            Assert.AreEqual(1, result[1]);
+            Assert.AreEqual(0, result[2]);
+            Assert.AreEqual(3, result[3]);
+            Assert.AreEqual(2, result[4]);
+            Assert.AreEqual(0, result[5]);
+            Assert.AreEqual(4, result[6]);
+            Assert.AreEqual(3, result[7]);
+            Assert.AreEqual(0, result[8]);
+        }
+
+        static void CheckResultTriangleStrip(NativeArray<ushort> result)
+        {
+            Assert.AreEqual(0, result[0]);
+            Assert.AreEqual(2, result[1]);
+            Assert.AreEqual(1, result[2]);
+            Assert.AreEqual(1, result[3]);
+            Assert.AreEqual(2, result[4]);
+            Assert.AreEqual(3, result[5]);
+            Assert.AreEqual(2, result[6]);
+            Assert.AreEqual(4, result[7]);
+            Assert.AreEqual(3, result[8]);
+        }
+
+        static void CheckResultTriangleStrip(NativeArray<uint> result)
+        {
+            Assert.AreEqual(0, result[0]);
+            Assert.AreEqual(2, result[1]);
+            Assert.AreEqual(1, result[2]);
+            Assert.AreEqual(1, result[3]);
+            Assert.AreEqual(2, result[4]);
+            Assert.AreEqual(3, result[5]);
+            Assert.AreEqual(2, result[6]);
+            Assert.AreEqual(4, result[7]);
+            Assert.AreEqual(3, result[8]);
         }
 
         [Test]
-        public void CreateIndicesInt32Job()
+        public void CreateIndicesUInt16Job()
+        {
+            Assert.IsTrue(m_IndexOutputUInt16.Length % 3 == 0);
+            var job = new GLTFast.Jobs.CreateIndicesUInt16Job
+            {
+                result = m_IndexOutputUInt16
+            };
+            job.Run(m_IndexOutputUInt16.Length);
+            CheckResult(m_IndexOutputUInt16);
+        }
+
+        [Test]
+        public void CreateIndicesUInt32Job()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
             var job = new GLTFast.Jobs.CreateIndicesUInt32Job
@@ -1376,11 +1435,28 @@ namespace GLTFast.Tests.Jobs
                 result = m_IndexOutput
             };
             job.Run(m_IndexOutput.Length);
-            CheckResult();
+            CheckResult(m_IndexOutput);
         }
 
         [Test]
-        public void CreateIndicesInt32FlippedJob()
+        public void CreateIndicesUInt16FlippedJob()
+        {
+            Assert.IsTrue(m_IndexOutputUInt16.Length % 3 == 0);
+            var job = new GLTFast.Jobs.CreateIndicesUInt16FlippedJob
+            {
+                result = m_IndexOutputUInt16
+            };
+            job.Run(m_IndexOutputUInt16.Length);
+            Assert.AreEqual(2, m_IndexOutputUInt16[0]);
+            Assert.AreEqual(1, m_IndexOutputUInt16[1]);
+            Assert.AreEqual(0, m_IndexOutputUInt16[2]);
+            Assert.AreEqual(5, m_IndexOutputUInt16[3]);
+            Assert.AreEqual(4, m_IndexOutputUInt16[4]);
+            Assert.AreEqual(3, m_IndexOutputUInt16[5]);
+        }
+
+        [Test]
+        public void CreateIndicesUInt32FlippedJob()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
             var job = new GLTFast.Jobs.CreateIndicesUInt32FlippedJob
@@ -1397,31 +1473,68 @@ namespace GLTFast.Tests.Jobs
         }
 
         [Test]
-        public void CreateIndicesForTriangleFanJob()
+        public void CreateIndicesForTriangleStripUInt16Job()
+        {
+            Assert.IsTrue(m_IndexOutputUInt16.Length > 3);
+            var job = new GLTFast.Jobs.CreateIndicesForTriangleStripUInt16Job
+            {
+                result = m_IndexOutputUInt16
+            };
+            job.Run(m_IndexOutputUInt16.Length);
+            CheckResultTriangleStrip(m_IndexOutputUInt16);
+        }
+
+        [Test]
+        public void CreateIndicesForTriangleFanUInt32Job()
         {
             Assert.IsTrue(m_IndexOutput.Length > 3);
-            var job = new GLTFast.Jobs.CreateIndicesForTriangleFanJob
+            var job = new GLTFast.Jobs.CreateIndicesForTriangleFanUInt32Job
             {
                 result = m_IndexOutput
             };
             job.Run(m_IndexOutput.Length);
-            CheckResultTriangleFan();
+            CheckResultTriangleFan(m_IndexOutput);
         }
 
         [Test]
-        public void CreateIndicesForTriangleStripJob()
+        public void CreateIndicesForTriangleFanUInt16Job()
+        {
+            Assert.IsTrue(m_IndexOutputUInt16.Length > 3);
+            var job = new GLTFast.Jobs.CreateIndicesForTriangleFanUInt16Job
+            {
+                result = m_IndexOutputUInt16
+            };
+            job.Run(m_IndexOutputUInt16.Length);
+            CheckResultTriangleFan(m_IndexOutputUInt16);
+        }
+
+        [Test]
+        public void CreateIndicesForTriangleStripUInt32Job()
         {
             Assert.IsTrue(m_IndexOutput.Length > 3);
-            var job = new GLTFast.Jobs.CreateIndicesForTriangleStripJob
+            var job = new GLTFast.Jobs.CreateIndicesForTriangleStripUInt32Job
             {
                 result = m_IndexOutput
             };
             job.Run(m_IndexOutput.Length);
-            CheckResultTriangleStrip();
+            CheckResultTriangleStrip(m_IndexOutput);
         }
 
         [Test]
-        public void ConvertIndicesUInt8ToInt32Job()
+        public void ConvertIndicesUInt8ToUInt16Job()
+        {
+            Assert.IsTrue(m_IndexOutputUInt16.Length % 3 == 0);
+            var job = new GLTFast.Jobs.ConvertIndicesUInt8ToUInt16Job
+            {
+                input = m_InputUInt8.AsReadOnly(),
+                result = m_IndexOutputUInt16
+            };
+            job.Run(m_IndexOutputUInt16.Length);
+            CheckResult(m_IndexOutputUInt16);
+        }
+
+        [Test]
+        public void ConvertIndicesUInt8ToUInt32Job()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
             var job = new GLTFast.Jobs.ConvertIndicesUInt8ToUInt32Job
@@ -1430,11 +1543,24 @@ namespace GLTFast.Tests.Jobs
                 result = m_IndexOutput
             };
             job.Run(m_IndexOutput.Length);
-            CheckResult();
+            CheckResult(m_IndexOutput);
         }
 
         [Test]
-        public void ConvertIndicesUInt8ToInt32FlippedJob()
+        public void ConvertIndicesUInt8ToUInt16FlippedJob()
+        {
+            Assert.IsTrue(m_IndexOutputUInt16.Length % 3 == 0);
+            var job = new GLTFast.Jobs.ConvertIndicesUInt8ToUInt16FlippedJob
+            {
+                input = m_InputUInt8.Reinterpret<byte3>(UnsafeUtility.SizeOf<byte>()).AsReadOnly(),
+                result = m_IndexOutputUInt16.Reinterpret<ushort3>(sizeof(ushort))
+            };
+            job.Run(m_IndexOutputUInt16.Length / 3);
+            CheckResultFlipped(m_IndexOutputUInt16);
+        }
+
+        [Test]
+        public void ConvertIndicesUInt8ToUInt32FlippedJob()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
             var job = new GLTFast.Jobs.ConvertIndicesUInt8ToUInt32FlippedJob
@@ -1443,11 +1569,24 @@ namespace GLTFast.Tests.Jobs
                 result = m_IndexOutput.Reinterpret<uint3>(sizeof(uint))
             };
             job.Run(m_IndexOutput.Length / 3);
-            CheckResultFlipped();
+            CheckResultFlipped(m_IndexOutput);
         }
 
         [Test]
-        public void ConvertIndicesUInt16ToInt32FlippedJob()
+        public void ConvertIndicesUInt16ToUInt16FlippedJob()
+        {
+            Assert.IsTrue(m_IndexOutputUInt16.Length % 3 == 0);
+            var job = new GLTFast.Jobs.ConvertIndicesUInt16ToUInt16FlippedJob
+            {
+                input = m_InputUInt16.Reinterpret<ushort3>(UnsafeUtility.SizeOf<ushort>()).AsReadOnly(),
+                result = m_IndexOutputUInt16.Reinterpret<ushort3>(sizeof(ushort))
+            };
+            job.Run(m_IndexOutputUInt16.Length / 3);
+            CheckResultFlipped(m_IndexOutputUInt16);
+        }
+
+        [Test]
+        public void ConvertIndicesUInt16ToUInt32FlippedJob()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
             var job = new GLTFast.Jobs.ConvertIndicesUInt16ToUInt32FlippedJob
@@ -1456,11 +1595,11 @@ namespace GLTFast.Tests.Jobs
                 result = m_IndexOutput.Reinterpret<uint3>(sizeof(uint))
             };
             job.Run(m_IndexOutput.Length / 3);
-            CheckResultFlipped();
+            CheckResultFlipped(m_IndexOutput);
         }
 
         [Test]
-        public void ConvertIndicesUInt16ToInt32Job()
+        public void ConvertIndicesUInt16ToUInt32Job()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
             var job = new GLTFast.Jobs.ConvertIndicesUInt16ToUInt32Job
@@ -1469,11 +1608,11 @@ namespace GLTFast.Tests.Jobs
                 result = m_IndexOutput
             };
             job.Run(m_IndexOutput.Length);
-            CheckResult();
+            CheckResult(m_IndexOutput);
         }
 
         [Test]
-        public void ConvertIndicesUInt32ToInt32FlippedJob()
+        public void ConvertIndicesUInt32ToUInt32FlippedJob()
         {
             Assert.IsTrue(m_IndexOutput.Length % 3 == 0);
             var job = new GLTFast.Jobs.ConvertIndicesUInt32ToUInt32FlippedJob
@@ -1482,7 +1621,7 @@ namespace GLTFast.Tests.Jobs
                 result = m_IndexOutput.Reinterpret<uint3>(sizeof(uint))
             };
             job.Run(m_IndexOutput.Length / 3);
-            CheckResultFlipped();
+            CheckResultFlipped(m_IndexOutput);
         }
 
         [Test]
@@ -1495,7 +1634,7 @@ namespace GLTFast.Tests.Jobs
                 indices = m_IndexOutput
             };
             job.Run();
-            CheckResultTriangleFan();
+            CheckResultTriangleFan(m_IndexOutput);
         }
 
         [Test]
@@ -1508,7 +1647,7 @@ namespace GLTFast.Tests.Jobs
                 indices = m_IndexOutput
             };
             job.Run();
-            CheckResultTriangleStrip();
+            CheckResultTriangleStrip(m_IndexOutput);
         }
     }
 
