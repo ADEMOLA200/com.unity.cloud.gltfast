@@ -2,22 +2,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #if USING_GRAPHICS_TEST_FRAMEWORK
+using System;
 using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
-using System.Xml.Schema;
 using GLTFast.Logging;
-using GLTFast.Tests;
+using GLTFast.Tests.Export;
 using GLTFast.Tests.Import;
 using NUnit.Framework;
 using Unity.Mathematics;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
 using UnityEngine.TestTools.Graphics;
 
 namespace GLTFast.Tests.Graphics
 {
     [Category("Graphics")]
-    class ImportGraphicsTests
+    [CodeBasedGraphicsTest("Assets/ReferenceImages")]
+    class ImportGraphicsTests : IPrebuildSetup
     {
         enum ViewType
         {
@@ -29,8 +35,19 @@ namespace GLTFast.Tests.Graphics
             Back,
             Perspective
         }
-        private const string DefaultReferenceImageName = "DefaultReferenceImage.png";
+
+        const string k_DefaultReferenceImageName = "DefaultReferenceImage.png";
+
         public Bounds Bounds { get; private set; }
+        static int s_FramesToWait;
+
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            SceneManager.LoadScene("GraphicsTestScene", LoadSceneMode.Single);
+            // Wait two frames before the first test is run to ensure scene is loaded to completion.
+            s_FramesToWait = 2;
+        }
 
         [GltfTestCase("glTF-Graphic-Tests-Assets", 2, testPrefix: "gfx-Top-")]
         public IEnumerator TopView(GltfTestCaseSet testCaseSet, GltfTestCase testCase)
@@ -62,6 +79,7 @@ namespace GLTFast.Tests.Graphics
         {
             yield return AsyncWrapper.WaitForTask(RunTestCaseAsync(testCaseSet, testCase, ViewType.Front));
         }
+
         [GltfTestCase("glTF-Graphic-Tests-Assets", 2, testPrefix: "gfx-Back-")]
         public IEnumerator BackView(GltfTestCaseSet testCaseSet, GltfTestCase testCase)
         {
@@ -74,11 +92,17 @@ namespace GLTFast.Tests.Graphics
             yield return AsyncWrapper.WaitForTask(RunTestCaseAsync(testCaseSet, testCase, ViewType.Perspective));
         }
 
-        private async Task RunTestCaseAsync(GltfTestCaseSet testCaseSet, GltfTestCase testCase, ViewType view)
+        async Task RunTestCaseAsync(GltfTestCaseSet testCaseSet, GltfTestCase testCase, ViewType view)
         {
 #if UNITY_ENTITIES_GRAPHICS
             Assert.Ignore("Graphics tests are not implemented with Entities.");
 #endif
+            while (s_FramesToWait > 0)
+            {
+                await Task.Yield();
+                s_FramesToWait--;
+            }
+
             // Create GameObject root for imported glTF scene
             var rootGameObject = new GameObject("GLTF Object");
             var deferAgent = new UninterruptedDeferAgent();
@@ -97,7 +121,7 @@ namespace GLTFast.Tests.Graphics
                     : "glTF import failed unexpectedly.");
             }
 
-            // Setup the main instantiator
+            // Set up the main instantiator
             var instantiatorLogger = new CollectingLogger();
             var instantiator = CreateInstantiator(gltfImport, instantiatorLogger, rootGameObject.transform);
 
@@ -114,8 +138,8 @@ namespace GLTFast.Tests.Graphics
             // Add and configure a main camera
             var cameraGameObject = CreateAndConfigureCamera(rootGameObject, view);
             ImageAssert.AreEqual(
-                LoadReferenceImage("gfx-"+ view +"-"+ testCase),
-                cameraGameObject.GetComponent<Camera>(), settings: new ImageComparisonSettings()
+                LoadReferenceImage("gfx-" + view + "-" + testCase),
+                cameraGameObject.GetComponent<Camera>(), settings: new ImageComparisonSettings
                 {
                     AverageCorrectnessThreshold = 0.0015f,
                     PerPixelCorrectnessThreshold = 0.00015f
@@ -134,14 +158,14 @@ namespace GLTFast.Tests.Graphics
         /// <summary>
         /// Creates and configures a camera for rendering the imported object from different views.
         /// </summary>
-        private GameObject CreateAndConfigureCamera(GameObject rootGameObject, ViewType view)
+        GameObject CreateAndConfigureCamera(GameObject rootGameObject, ViewType view)
         {
 
-            Transform objectTransform = rootGameObject.transform;
+            var objectTransform = rootGameObject.transform;
             var cameraGameObject = new GameObject("Main Camera");
             cameraGameObject.transform.SetParent(objectTransform);
             var camera = cameraGameObject.AddComponent<Camera>();
-            float fieldOfView = 60;
+            const float fieldOfView = 60;
             camera.fieldOfView = fieldOfView;
             float3 scale = objectTransform.localScale;
             float3 boundsSize = Bounds.size;
@@ -158,30 +182,17 @@ namespace GLTFast.Tests.Graphics
 
             camera.nearClipPlane = distance * .001f;
             camera.farClipPlane = distance * 3;
-            switch (view)
+            camera.transform.position = view switch
             {
-                case ViewType.Top:
-                    camera.transform.position = centerPosition + new Vector3(0, distance, 0);
-                    break;
-                case ViewType.Bottom:
-                    camera.transform.position = centerPosition + new Vector3(0, -distance, 0);
-                    break;
-                case ViewType.Left:
-                    camera.transform.position = centerPosition + new Vector3(-distance, 0, 0);
-                    break;
-                case ViewType.Right:
-                    camera.transform.position = centerPosition + new Vector3(distance, 0, 0);
-                    break;
-                case ViewType.Front:
-                    camera.transform.position = centerPosition + new Vector3(0, 0, distance);
-                    break;
-                case ViewType.Back:
-                    camera.transform.position = centerPosition + new Vector3(0, 0, -distance);
-                    break;
-                case ViewType.Perspective:
-                    camera.transform.position = centerPosition + new Vector3(distance, 0, distance);
-                    break;
-            }
+                ViewType.Top => centerPosition + new Vector3(0, distance, 0),
+                ViewType.Bottom => centerPosition + new Vector3(0, -distance, 0),
+                ViewType.Left => centerPosition + new Vector3(-distance, 0, 0),
+                ViewType.Right => centerPosition + new Vector3(distance, 0, 0),
+                ViewType.Front => centerPosition + new Vector3(0, 0, distance),
+                ViewType.Back => centerPosition + new Vector3(0, 0, -distance),
+                ViewType.Perspective => centerPosition + new Vector3(distance, 0, distance),
+                _ => camera.transform.position
+            };
 
             camera.transform.LookAt(centerPosition);
             FrameObject(Bounds, camera);
@@ -191,36 +202,30 @@ namespace GLTFast.Tests.Graphics
         /// <summary>
         /// Loads a reference image to compare the rendered output.
         /// </summary>
-        private static Texture2D LoadReferenceImage(string filename)
+        static Texture2D LoadReferenceImage(string filename)
         {
             const string baseReferencePath = "Assets/ReferenceImages/";
             var referenceImage = new Texture2D(1, 1);
             var referenceImagePath = Path.Combine(baseReferencePath, $"{filename}.png");
             var imageBytes = File.Exists(referenceImagePath)
                 ? File.ReadAllBytes(referenceImagePath)
-                : File.ReadAllBytes(Path.Combine(baseReferencePath, DefaultReferenceImageName));
+                : File.ReadAllBytes(Path.Combine(baseReferencePath, k_DefaultReferenceImageName));
             referenceImage.LoadImage(imageBytes);
             return referenceImage;
         }
+
         void FrameObject(Bounds bounds, Camera camera)
-            {
-                Vector3 boxCenter = bounds.center;
-                Vector3 boxExtents = bounds.extents;
+        {
+            var boxCenter = bounds.center;
+            var fov = camera.fieldOfView;
+            var maxDimension = math.length(Bounds.size);
+            var fovRad = fov * Mathf.Deg2Rad;
+            var distance = (maxDimension / 2) / Mathf.Tan(fovRad / 2);
 
-                float aspect = (float)Screen.width / Screen.height;
-                float fov = camera.fieldOfView;
-
-                float boxHeight = boxExtents.y * 2;
-                float boxWidth = boxExtents.x * 2;
-                float maxDimension = math.length(Bounds.size);
-
-                float fovRad = fov * Mathf.Deg2Rad;
-                float Distance = (maxDimension / 2) / Mathf.Tan(fovRad / 2);
-
-                Vector3 cameraPosition = boxCenter - camera.transform.forward * Distance;
-                camera.transform.position = cameraPosition;
-                camera.transform.LookAt(boxCenter);
-            }
+            var cameraPosition = boxCenter - camera.transform.forward * distance;
+            camera.transform.position = cameraPosition;
+            camera.transform.LookAt(boxCenter);
+        }
 
         /// <summary>
         /// Creates an appropriate instantiator based on the runtime environment.
@@ -232,6 +237,39 @@ namespace GLTFast.Tests.Graphics
         {
             return new GameObjectBoundsInstantiator(gltf, parentTransform, logger);
         }
+
+
+        public void Setup()
+        {
+#if UNITY_EDITOR
+            SetupTests();
+#endif
+        }
+
+#if UNITY_EDITOR
+        internal static void SetupTests()
+        {
+            AddExportTestScene("GraphicsTestScene");
+        }
+
+        internal static void AddExportTestScene(string sceneName)
+        {
+            var scenePath = $"Packages/{GltfGlobals.GltfPackageName}/Tests/Runtime/Scenes/{sceneName}.unity";
+            var scenes = EditorBuildSettings.scenes;
+            var sceneGuid = ExportTests.TryFixPackageAssetPath(ref scenePath);
+            foreach (var scene in scenes)
+            {
+                if (scene.guid == sceneGuid)
+                {
+                    return;
+                }
+            }
+
+            Array.Resize(ref scenes, scenes.Length + 1);
+            scenes[^1] = new EditorBuildSettingsScene(sceneGuid, true);
+            EditorBuildSettings.scenes = scenes;
+        }
+#endif // UNITY_EDITOR
     }
 }
 #endif // USING_GRAPHICS_TEST_FRAMEWORK

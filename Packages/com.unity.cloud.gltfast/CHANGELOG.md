@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (Export) `MetaMaterialExportBuiltIn` is used for built-in material export (unless `GLTFAST_BUILTIN_SHADER_GRAPH` is set).
 - (Import) Solved exception when scenes with no nodes are loaded.
 - (Import) Triangle fan meshes with the center vertex not being the first vertex import correctly now.
+- (Test) Graphics tests are more stable/consistent due to dedicated scene.
 
 ### Removed
 

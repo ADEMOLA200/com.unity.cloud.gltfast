@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using GLTFast.Tests.Export;
+#if USING_GRAPHICS_TEST_FRAMEWORK
+using GLTFast.Tests.Graphics;
+#endif
 using GLTFast.Tests.Import;
 using UnityEditor;
 using UnityEditor.Build;
@@ -30,6 +33,9 @@ namespace GLTFast.Editor.Tests
                 AddShaderVariantCollections();
                 ExportTests.CertifyStreamingAssetsFolder();
                 ExportTests.SetupTests();
+#if USING_GRAPHICS_TEST_FRAMEWORK
+                ImportGraphicsTests.SetupTests();
+#endif
                 CopyExportTargetsToStreamingAssets();
                 AssetDatabase.Refresh();
             }
